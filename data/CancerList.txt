@@ -1,0 +1,47 @@
+Adrenal gland 
+Autonomic ganglia 
+Biliary tract 
+Bone
+Breast 
+Central nervous system 
+Cervix 
+Endometrium 
+Eye 
+Fallopian tube 
+Female genital tract 
+Gastrointestinal tract 
+Genital tract 
+Haematopoietic and lymphoid tissue 
+Kidney 
+Large intestine 
+Liver 
+Lung 
+Mediastinum 
+Meninges 
+NS 
+Oesophagus 
+Ovary 
+Pancreas 
+Paratesticular tissues 
+Parathyroid 
+Penis 
+Pericardium 
+Perineum 
+Peritoneum 
+Pituitary 
+Placenta 
+Pleura 
+Prostate 
+Retroperitoneum 
+Salivary gland 
+Skin 
+Small intestine 
+Soft tissue 
+Stomach 
+Testis 
+Thymus 
+Thyroid 
+Upper aerodigestive tract 
+Urinary tract 
+Vagina 
+Vulva 
