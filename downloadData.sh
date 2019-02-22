@@ -1,9 +1,3 @@
-#########################################################################
-## File Name: downloadData.sh
-## Author: hanshiyi
-## Mail: hanshiyi123@gmail.com
-## Created Time: Thu 21 Feb 2019 12:03:03 AM EST
-#########################################################################
 #!/bin/bash
 #SBATCH -t 24:00:00
 #SBATCH -o download_pubmed_JOB%j.out
@@ -16,7 +10,7 @@ pkls=${curDir}/pkls/
 mkdir ${curDir}/data
 mkdir ${rawData}
 mkdir -r ${processedData}
-
+source /users/shan43/data/shan43/venv2/bin/activate
 fusionPair=${curDir}/data/CosmicFusionExport.tsv
 
 #python ${curDir}/src/utils.py $fusionPair $rawData
@@ -27,8 +21,8 @@ fusionPair=${curDir}/data/CosmicFusionExport.tsv
 #python ${curDir}/src/parse_hugo.py  ${curDir}/data/Hugo.txt ${pkls}
 
 #usage: genepkl reversepkl sourcepath targetpath labelpair
-python ${curDir}/src/preprocessPos.py ${pkls}gene_dict.pkl ${pkls}reverse_gene_dict.pkl ${rawData} ${processedData} ${rawData}labelPairPure
+#python ${curDir}/src/preprocessPos.py ${pkls}gene_dict.pkl ${pkls}reverse_gene_dict.pkl ${rawData} ${processedData} ${rawData}labelPairPure
 
 #usage: genepkl reversepkl downloadpath cookedpath labelpairpos
-#python ${curDir}/src/preprocessNeg.py ${pkls}gene_dict.pkl ${pkls}reverse_gene_dict.pkl ${rawData} ${processedData} ${processedData}labelPairPos ${curDir}/data/CosmicCompleteTargetedScreensMutantExport.tsv
+python ${curDir}/src/preprocessNeg.py ${pkls}gene_dict.pkl ${pkls}reverse_gene_dict.pkl ${rawData} ${processedData} ${processedData}labelPairPos ${curDir}/data/CosmicCompleteTargetedScreensMutantExport.tsv
 

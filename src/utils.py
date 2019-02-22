@@ -2,9 +2,6 @@ from bs4 import BeautifulSoup
 import pickle,sys,string
 import urllib
 
-BATCH_NUM = 150
-batchList = []
-dic = {}
 
 def remove_punc(s):
     return s.translate(string.maketrans('!"#$%&\'()*+,./:;<=>?@[\\]^_`{|}~', ' '*(len(string.punctuation)-1)))
@@ -30,8 +27,7 @@ def replacePubMed(gene_dict, gene_reverse_dict, words):
     return outwords, count
 
 
-def downloadById(outPath):
-    global batchList
+def downloadById(outPath, batchList, dic):
     url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id='
     for pubid in batchList[:-1]:
         url+=pubid
@@ -40,16 +36,18 @@ def downloadById(outPath):
     url +='&retmode=abstract&rettype=xml'
     soup = BeautifulSoup(urllib.urlopen(url).read(), 'lxml-xml')
     article = soup.findAll('PubmedArticle')
-    print(len(batchList))
+    #print(len(batchList))
     #print(len(article))
     for idx, art in enumerate(article):
         medId = art.find('PMID').string
         title = art.find('ArticleTitle')
         abstract = art.find('AbstractText')
+        if title is None or title.string is None:
+            continue
         if abstract is None or abstract.string is None:
             continue
-        dic[medId] = 1
         #print(title)
+        dic[medId] = 1
         with open(outPath+medId, 'w') as file:
             file.write(title.string.encode('utf-8')+'\n')
             file.write(abstract.string.encode('utf-8') + '\n')
@@ -58,9 +56,9 @@ def downloadById(outPath):
 
 def loadTSVAD(file_name, outPath):
     file = open(file_name)
-    global batchList
-    global BATCH_NUM
-    global dic
+    batchList = []
+    BATCH_NUM = 150
+    dic = {}
     file.readline()
     count = 0
     labelPairFile = open(outPath+'labelPairRaw','w')
@@ -74,11 +72,9 @@ def loadTSVAD(file_name, outPath):
                 dic[secs[-2]] = 0
                 batchList.append(secs[-2])
         if len(batchList) == BATCH_NUM:
-            #print(batchList)
-            downloadById(outPath)
-            print(count)
+            downloadById(outPath, batchList, dic)
     if len(batchList) > 0:
-        downloadById(outPath)
+        downloadById(outPath, batchList, dic)
     noabs = open(outPath+'noAbsList','w')
     for pubmedid in dic:
         if dic[pubmedid] == 0:
@@ -87,9 +83,9 @@ def loadTSVAD(file_name, outPath):
 
 def loadNEG(file_name, outPath):
     file = open(file_name)
-    global batchList
-    global BATCH_NUM
-    global dic
+    batchList = []
+    BATCH_NUM = 150
+    dic = {}
     file.readline()
     count = 0
     id2gene = {}
@@ -104,10 +100,10 @@ def loadNEG(file_name, outPath):
                 batchList.append(pid)
         if len(batchList) == BATCH_NUM:
             #print(batchList)
-            downloadById(outPath)
+            downloadById(outPath, batchList, dic)
             print(count)
     if len(batchList) > 0:
-        downloadById(outPath)
+        downloadById(outPath, batchList, dic)
     pickle.dump(id2gene, open('pkls/id2geneneg.pkl','w'))
     #print(count)
 
