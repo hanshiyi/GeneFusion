@@ -15,8 +15,10 @@ def replacePubMed(gene_dict, gene_reverse_dict, words):
                if sw in gene_reverse_dict:
                    outwords.append(gene_reverse_dict[sw])
                    count+=1
-               else:
+               elif sw in gene_dict:
                    outwords.append(sw)
+               else:
+                   outwords.append(sw.lower())
         elif w in gene_reverse_dict:
             outwords.append(gene_reverse_dict[w])
             count += 1
