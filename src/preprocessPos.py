@@ -1,4 +1,5 @@
 import sys, string, os, pickle, json
+import random
 from utils import *
 
 if __name__ == "__main__":
@@ -28,7 +29,7 @@ if __name__ == "__main__":
 
     print("%d total replacements made. Here are the top 50:" % total_replaced)
     lp = open(sys.argv[5])
-    olp = open(targetpath+'labelPairPos', 'w')
+    poslp = open(targetpath+'labelPairPos', 'w')
     for ll in lp.readlines():
         line = ll.strip('\n').split() #gene1 gene2 cancer pubmedid
         gene1, gene2, cancer = line[0], line[1], line[2]
@@ -43,5 +44,4 @@ if __name__ == "__main__":
                     if aw == gene2:
                         g2e = True
             if g1e and g2e:
-                olp.write(ll)
-
+                poslp.write(ll)

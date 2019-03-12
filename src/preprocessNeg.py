@@ -72,7 +72,7 @@ if __name__ == "__main__":
     dic = downloadNegPub(sourcepath)
     print(posGene)
     lp = open(sourcepath+'labelPairNeg')
-    successlp = open(targetpath+'labelPairNeg','w')
+    neglp = open(targetpath+'labelPairNeg','w')
     for line in lp.readlines():
         words = []
         count = 0
@@ -101,7 +101,7 @@ if __name__ == "__main__":
             #os.remove(sourcepath+pubmedid)
             continue
         dic[pubmedid] = 0
-        successlp.write(gene1+'\t'+gene2+'\t'+cancer+'\t'+pubmedid+'\t'+mutation+'\n')
+        neglp.write(gene1+'\t'+gene2+'\t'+cancer+'\t'+pubmedid+'\t'+mutation+'\n')
         with open(targetpath+pubmedid, 'w') as of:
            for ow in outwords:
               of.write(ow+' ')
