@@ -69,7 +69,11 @@ if __name__ == "__main__":
     print("creating new labelpairneg")
     #createNegLP(negReport)
     print("downloading neg articles")
-    dic = downloadNegPub(sourcepath)
+    try:
+        dic = pickle.load(open(targetpath+'docDic.pkl'))
+    except:
+        dic = downloadNegPub(sourcepath)
+        pickle.dump(dic, open(targetpath+'docDic.pkl','w'))
     print(posGene)
     lp = open(sourcepath+'labelPairNeg')
     neglp = open(targetpath+'labelPairNeg','w')
@@ -101,7 +105,7 @@ if __name__ == "__main__":
             #os.remove(sourcepath+pubmedid)
             continue
         dic[pubmedid] = 0
-        neglp.write(gene1+'\t'+gene2+'\t'+cancer+'\t'+pubmedid+'\t'+mutation+'\n')
+        neglp.write(gene1+'\t'+gene2+'\t'+'NOT_FUSION'+'\t'+pubmedid+'\t'+mutation+'\t'+cancer+'\n')
         with open(targetpath+pubmedid, 'w') as of:
            for ow in outwords:
               of.write(ow+' ')

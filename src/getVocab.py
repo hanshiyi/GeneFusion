@@ -20,9 +20,12 @@ def extractVocab(labelPos, labelNeg, outpath):
         line = line.strip('\n').split('\t')
         cancerdic[line[2]] = cancerdic.get(line[2],0)+1
     cancertype = 0
+    cancer_file = open(outpath+'rel.txt', 'w')
     for can in cancerdic:
         if cancerdic[can] > args.threshold_rel:
+            cancer_file.write(can+'\n')
             cancertype+=1
+    cancer_file.write('NOT_FUSION')
     for line in lpPos:
         line = line.strip('\n').split('\t')
         if cancerlist[line[2]] < args.threshold_rel:
@@ -44,10 +47,19 @@ def extractVocab(labelPos, labelNeg, outpath):
             for word in file.readline().split():
                 worddic[word] = worddic.get(word,0) + 1
     vocab = open(outpath + 'vocab.txt','w')
+    widx = 2
+    vocab.write('<PAD>\t0\n')
+    vocab.write('<UNK>\t1\n')
     for word in worddic:
         if worddic[word] > args.threshold_word or word in geneList:
-            vocab.write(word+'\t'+str(worddic[word])+'\n')
+            vocab.write(word+'\t'+str(widx)+'\n')
+            widx += 1
     vocab.close()
+    gene_file = open(outpath+'gene_list.txt', 'w')
+    gene_file.write('<UNK>\t0\n')
+    for idx, gene in enumerate(geneList):
+        gene_file.write(gene+'\t'+str(idx+1)+'\n')
+    gene_file.close()
     lppos = open(labelPos)
     trainlppos = open(outpath+'labelPairPosTrain', 'w')
     testlppos = open(outpath+'labelPairPosTest', 'w')
@@ -64,6 +76,14 @@ def extractVocab(labelPos, labelNeg, outpath):
             trainlpneg.write(line)
         else:
             testlpneg.write(line)
+    ne_file = open(outpath+'ner_labels.txt', 'w')
+    ne_file.write('<PAD>\t0\n')
+    ne_file.write('<END>\t1\n')
+    ne_file.write('<START>\t2\n')
+    ne_file.write('B-GENE\t3\n')
+    ne_file.write('I-GENE\t4\n')
+    ne_file.close()
+
 
 if __name__ == '__main__':
     labelPos = args.lpPos
