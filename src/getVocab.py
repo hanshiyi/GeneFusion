@@ -26,9 +26,10 @@ def extractVocab(labelPos, labelNeg, outpath):
             cancer_file.write(can+'\n')
             cancertype+=1
     cancer_file.write('NOT_FUSION')
+    lpPos = open(labelPos)
     for line in lpPos:
         line = line.strip('\n').split('\t')
-        if cancerlist[line[2]] < args.threshold_rel:
+        if cancerdic[line[2]] < args.threshold_rel:
             continue
         if line[3] not in pubmedids:
             pubmedids.append(line[3])
@@ -41,6 +42,10 @@ def extractVocab(labelPos, labelNeg, outpath):
         line = line.strip('\n').split('\t')
         if line[3] not in pubmedids:
             pubmedids.append(line[3])
+        if line[0] not in geneList:
+            geneList.append(line[0])
+        if line[1] not in geneList:
+            geneList.append(line[1])
     worddic = {}
     for id in pubmedids:
         with open(outpath+id) as file:
@@ -50,6 +55,7 @@ def extractVocab(labelPos, labelNeg, outpath):
     widx = 2
     vocab.write('<PAD>\t0\n')
     vocab.write('<UNK>\t1\n')
+    #print(geneList)
     for word in worddic:
         if worddic[word] > args.threshold_word or word in geneList:
             vocab.write(word+'\t'+str(widx)+'\n')
@@ -64,6 +70,9 @@ def extractVocab(labelPos, labelNeg, outpath):
     trainlppos = open(outpath+'labelPairPosTrain', 'w')
     testlppos = open(outpath+'labelPairPosTest', 'w')
     for line in lppos.readlines():
+        cancer = line.split('\t')[2]
+        if cancerdic[cancer] < args.threshold_rel:
+            continue
         if random.random()<args.train_ratio:
             trainlppos.write(line)
         else:

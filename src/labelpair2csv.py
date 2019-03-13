@@ -36,8 +36,9 @@ def main():
                 gene2, 'Gene', gene2, gene2_start, gene2_end,
                 pubmedid, rel, text])
         out_file.close()
-    cancerlist = [line.strip('\n').split('_') for line in open(dir2pubmed+'rel.txt').readlines()]
-    genelist = [line.strip('\n') for line in open(dir2pubmed+'gene_list.txt').readlines()]
+    cancerlist = [line.strip('\n').split('_') for line in open(args.dir2pubmed+'rel.txt').readlines()]
+    genelist = [line.strip('\n').split('\t')[0] for line in open(args.dir2pubmed+'gene_list.txt').readlines()]
+    #print(genelist)
     if 'Train' in args.lp_files:
         negfile = open(outpath + 'ner_train.txt', 'w')
     else:
@@ -49,6 +50,8 @@ def main():
                 negfile.write('%s\t%s\t%s\t%s\n' % (w,'B-GENE',str(genelist.index(w)),pubid))
             else:
                 negfile.write('%s\t%s\t%s\t%s\n' % (w, 'O', '-1', pubid))
+        negfile.write('\n')
+    negfile.close()
 
 
 if __name__ == '__main__':

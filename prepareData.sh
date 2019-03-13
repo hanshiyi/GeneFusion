@@ -7,11 +7,14 @@ curDir=`pwd`
 rawData=${curDir}/data/rawpos/
 processedData=${curDir}/data/processed/
 pkls=${curDir}/pkls/
+finalDir=${curDir}/data/protos/
 mkdir ${curDir}/data
 mkdir ${rawData}
 mkdir -r ${processedData}
-source /users/shan43/data/shan43/venv2/bin/activate
+mkdir ${finalDir}
 fusionPair=${curDir}/data/CosmicFusionExport.tsv
+max_len=50000
+min_coun=1t
 
 #python ${curDir}/src/utils.py $fusionPair $rawData
 
@@ -29,3 +32,9 @@ fusionPair=${curDir}/data/CosmicFusionExport.tsv
 python ${curDir}/src/getVocab.py ${processedData}labelPairPos ${processedData}labelPairNeg ${processedData}
 
 #python ${curDir}/src/w2v_pretrain.py ${pkls}gene_dict.pkl ${pkls}reverse_gene_dict.pkl ${rawData} ${processedData} ${processedData}vocab.txt ${curDir}/data/CosmicCompleteTargetedScreensMutantExport.tsv
+
+
+python ${curDir}/src/labelpair2csv.py ${processedData}labelPair\*Train\* ${processedData} ${finalDir}
+python ${curDir}/src/labelpair2csv.py ${processedData}labelPair\*Test\* ${processedData} ${finalDir}
+
+python ${curDir}/src/labled_tsv_to_tfrecords.py --text_in_files ${finalDir}/\*.csv --out_dir ${finalDir} --max_len ${max_len} --num_threads 10 --multiple_mentions --tsv_format --min_count ${min_count}
