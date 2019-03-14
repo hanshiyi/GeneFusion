@@ -80,6 +80,7 @@ def extractVocab(labelPos, labelNeg, outpath):
         gene_file.write(gene+'\t'+str(idx+1)+'\n')
     gene_file.close()
     lppos = open(labelPos)
+    trainids = []
     trainlppos = open(outpath+'labelPairPosTrain', 'w')
     testlppos = open(outpath+'labelPairPosTest', 'w')
     for line in lppos.readlines():
@@ -87,6 +88,7 @@ def extractVocab(labelPos, labelNeg, outpath):
         if cancerdic[cancer] < args.threshold_rel:
             continue
         if random.random()<args.train_ratio:
+            trainids.append(line.strip('\n').split('\t')[3])
             trainlppos.write(line)
         else:
             testlppos.write(line)
@@ -95,9 +97,13 @@ def extractVocab(labelPos, labelNeg, outpath):
     testlpneg = open(outpath+'labelPairNegTest', 'w')
     for line in lpneg.readlines():
         if random.random()<args.train_ratio:
+            trainids.append(line.strip('\n').split('\t')[3])
             trainlpneg.write(line)
         else:
             testlpneg.write(line)
+    train_ids_file = open(outpath+'pubmedid_train.txt','w')
+    for trainid in trainids:
+        train_ids_file.write(trainid+'\n')
     ne_file = open(outpath+'ner_labels.txt', 'w')
     ne_file.write('<PAD>\t0\n')
     ne_file.write('<END>\t1\n')

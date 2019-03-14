@@ -1,8 +1,8 @@
 #!/bin/bash
-
+export PYTHONPATH=. 
 curDir=`pwd`
 protos=${curDir}/data/protos
-
+logDir=${curDir}/saved_models/`date +%Y-%m-%d-%H`/${RANDOM}_${RANDOM}
 python src/train.py \
 --vocab_dir=${protos} \
 --optimizer=adam \
@@ -16,32 +16,30 @@ python src/train.py \
 --doc_filter /users/shan43/data/shan43/bran/data/cdr/CDR_pubmed_ids/CDR_Train_Dev_pubmed_ids.txt \
 --noise_std 0.1 \
 --block_repeats 2 \
---embeddings /users/shan43/data/shan43/bran/data/embeddings/just_train_2500_64d
---ner_prob 0.5
---ner_weight 10.0
---ner_test
-/users/shan43/data/shan43/bran/data/cdr/processed/just_train_2500/protos/ner_CDR_dev.txt.proto
---ner_train
-/users/shan43/data/shan43/bran/data/cdr/processed/just_train_2500/protos/ner_CDR_train.txt.proto
---dropout_loss_weight 0
---word_unk_dropout 0.85
---beta1 .1
---beta2 .9
---kb_pretrain 0
---ner_batch 16
---text_batch 32
---kb_batch 16
---num_classes 2
---kb_vocab_size 2
---text_encoder transformer_cnn_all_pairs
---position_dim 0
---epsilon=1e-4
---neg_noise=.20
---pos_noise=.33
---negative_test_test=/users/shan43/data/shan43/bran/data/cdr/processed/just_train_2500/protos/negative_*test_filtered.txt.proto
---positive_test_test=/users/shan43/data/shan43/bran/data/cdr/processed/just_train_2500/protos/positive_*test.txt.proto
---negative_test=/users/shan43/data/shan43/bran/data/cdr/processed/just_train_2500/protos/negative_*train*_filtered.txt.proto
---positive_test=/users/shan43/data/shan43/bran/data/cdr/processed/just_train_2500/protos/positive_*train*.txt.proto
---negative_train=/users/shan43/data/shan43/bran/data/cdr/processed/just_train_2500/protos/negative_*train*_filtered.txt.proto
---positive_train=/users/shan43/data/shan43/bran/data/cdr/processed/just_train_2500/protos/positive_*train*.txt.proto
---logdir=/users/shan43/data/shan43/bran/saved_models/cdr/relex/cdr_2500/2019-03-10-23//32023_9720
+--embeddings ${curDir}/data/processed/w2v.txt \
+--ner_prob 0.5 \
+--ner_weight 10.0 \
+--ner_test ${protos}/ner_test.txt.proto \
+--ner_train ${protos}/ner_train.txt.proto \
+--dropout_loss_weight 0 \
+--word_unk_dropout 0.85 \
+--beta1 .1 \
+--beta2 .9 \
+--kb_pretrain 0 \
+--ner_batch 16 \
+--text_batch 32 \
+--kb_batch 16 \
+--num_classes 2 \
+--kb_vocab_size 2 \
+--text_encoder transformer_cnn_all_pairs \
+--position_dim 0 \
+--epsilon=1e-4 \
+--neg_noise=.20 \
+--pos_noise=.33 \
+--negative_test_test=${protos}/NegTest.csv.proto \
+--positive_test_test=${protos}/PosTest.csv.proto \
+--negative_test=${protos}/NegTrain.csv.proto \
+--positive_test=${protos}/PosTrain.csv.proto \
+--negative_train=${protos}/NegTrain.csv.proto \
+--positive_train=${protos}/PosTrain.csv.proto \
+--logdir=${logDir}

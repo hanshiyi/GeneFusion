@@ -92,4 +92,4 @@ if __name__ == "__main__":
     model = Word2Vec(min_count=1, size=64, window=10, negative=20, seed=1234, workers=4)
     test_vocab = model.build_vocab(corpus_file=targetpath+'w2vcorpus.txt')
     model.train(sentences=sens,epochs=100, total_examples=7246)
-    model.wv.save(targetpath+'w2v.txt')
+    model.wv.save_word2vec_format(targetpath+'w2v.txt')
