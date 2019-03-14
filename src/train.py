@@ -91,22 +91,14 @@ def train_model(model, pos_dist_supervision_batcher, neg_dist_supervision_batche
             # relex update
             else:
                 # dist supervision update
-                if step < kb_pretrain or random.uniform(0, 1) > text_prob:
-                    if FLAGS.pos_prob >= random.uniform(0, 1):
-                        feed_dict, batch_size, doc_ids = batch_feed_dict(pos_dist_supervision_batcher, sess, model,
-                                                                FLAGS, string_int_maps=string_int_maps)
-                    else:
-                        feed_dict, batch_size, doc_ids = batch_feed_dict(neg_dist_supervision_batcher, sess, model,
-                                                                         FLAGS, string_int_maps=string_int_maps)
+                # text_update
+                if FLAGS.pos_prob >= random.uniform(0, 1):
+                    feed_dict, batch_size, doc_ids = batch_feed_dict(positive_train_batcher, sess, model,
+                                                                     FLAGS, string_int_maps=string_int_maps)
                 else:
-                    # text_update
-                    if FLAGS.pos_prob >= random.uniform(0, 1):
-                        feed_dict, batch_size, doc_ids = batch_feed_dict(positive_train_batcher, sess, model,
-                                                                         FLAGS, string_int_maps=string_int_maps)
-                    else:
-                        feed_dict, batch_size, doc_ids = batch_feed_dict(negative_train_batcher, sess, model,
-                                                                         FLAGS, string_int_maps=string_int_maps)
-                    feed_dict[model.loss_weight] = FLAGS.text_weight
+                    feed_dict, batch_size, doc_ids = batch_feed_dict(negative_train_batcher, sess, model,
+                                                                     FLAGS, string_int_maps=string_int_maps)
+                feed_dict[model.loss_weight] = FLAGS.text_weight
 
                 feed_dict[model.noise_weight] = FLAGS.variance_min
 
@@ -141,9 +133,6 @@ def train_model(model, pos_dist_supervision_batcher, neg_dist_supervision_batche
 
 def main(argv):
     ## TODO gross
-    if ('transformer' in FLAGS.text_encoder or 'glu' in FLAGS.text_encoder) and FLAGS.token_dim == 0:
-        FLAGS.token_dim = FLAGS.embed_dim-(2*FLAGS.position_dim)
-    # print flags:values in alphabetical order
     print ('\n'.join(sorted(["%s : %s" % (str(k), str(v)) for k, v in FLAGS.__dict__['__flags'].iteritems()])))
 
     if FLAGS.vocab_dir == '':
@@ -191,39 +180,13 @@ def main(argv):
     position_vocab_size = (2 * FLAGS.max_seq)
 
     label_weights = None
-    if FLAGS.label_weights != '':
-        with open(FLAGS.label_weights, 'r') as f:
-            lines = [l.strip().split('\t') for l in f]
-            label_weights = {kb_str_id_map[k]: float(v) for k, v in lines}
-
     ep_kg_labels = None
-    if FLAGS.kg_label_file != '':
-        kg_in_file = gzip.open(FLAGS.kg_label_file, 'rb') if FLAGS.kg_label_file.endswith('gz') else open(FLAGS.kg_label_file, 'r')
-        lines = [l.strip().split() for l in kg_in_file.readlines()]
-        eps = [('%s::%s' % (l[0], l[1]), l[2]) for l in lines]
-        ep_kg_labels = defaultdict(set)
-        [ep_kg_labels[ep_str_id_map[_ep]].add(pid) for _ep, pid in eps if _ep in ep_str_id_map]
-        print('Ep-Kg label map size %d ' % len(ep_kg_labels))
-        kg_in_file.close()
-
     e1_e2_ep_map = {} #{(entity_str_id_map[ep_str.split('::')[0]], entity_str_id_map[ep_str.split('::')[1]]): ep_id
                       #for ep_id, ep_str in ep_id_str_map.iteritems()}
     ep_e1_e2_map = {} #{ep: e1_e2 for e1_e2, ep in e1_e2_ep_map.iteritems()}
 
     # get entity <-> type maps for sampling negatives
     entity_type_map, type_entity_map = {}, defaultdict(list)
-    if FLAGS.type_file != '':
-        with open(FLAGS.type_file, 'r') as f:
-            entity_type_map = {entity_str_id_map[l.split('\t')[0]]: l.split('\t')[1].strip().split(',') for l in
-                               f.readlines() if l.split('\t')[0] in entity_str_id_map}
-            for entity, type_list in entity_type_map.iteritems():
-                for t in type_list:
-                    type_entity_map[t].append(entity)
-            # filter
-            type_entity_map = {k: v for k, v in type_entity_map.iteritems() if len(v) > 1}
-            valid_types = set([t for t in type_entity_map.iterkeys()])
-            entity_type_map = {k: [t for t in v if t in valid_types] for k, v in entity_type_map.iteritems()}
-            entity_type_map = {k: v for k, v in entity_type_map.iteritems() if len(v) > 1}
 
     string_int_maps = {'kb_str_id_map': kb_str_id_map, 'kb_id_str_map': kb_id_str_map,
                         'token_str_id_map': token_str_id_map, 'token_id_str_map': token_id_str_map,
@@ -277,12 +240,7 @@ def main(argv):
             if FLAGS.ner_train != '' else None
 
         # initialize model
-        if 'multi' in FLAGS.model_type and 'label' in FLAGS.model_type:
-            model_type = MultiLabelClassifier
-        elif 'entity' in FLAGS.model_type and 'binary' in FLAGS.model_type:
-            model_type = EntityBinary
-        else:
-            model_type = ClassifierModel
+        model_type = ClassifierModel
         print('Model type: %s ' % FLAGS.model_type)
         model = model_type(ep_vocab_size, entity_vocab_size, kb_vocab_size, token_vocab_size, position_vocab_size,
                            ner_label_vocab_size, word_embedding_matrix, entity_embedding_matrix, string_int_maps, FLAGS)

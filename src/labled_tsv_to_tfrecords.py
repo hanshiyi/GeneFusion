@@ -290,13 +290,13 @@ def tsv_to_examples():
     total_lines = 0
     if FLAGS.load_vocab:
         print('Loading vocab from %s' % FLAGS.load_vocab)
-        with open('%s/entities.txt' % FLAGS.load_vocab) as f:
+        with open('%s/gene_list.txt' % FLAGS.load_vocab) as f:
             entity_map = {l.split('\t')[0]: int(l.split('\t')[1]) for l in f}
         with open('%s/ep.txt' % FLAGS.load_vocab) as f:
             ep_map = {l.split('\t')[0]: int(l.split('\t')[1]) for l in f}
         with open('%s/rel.txt' % FLAGS.load_vocab) as f:
             rel_map = {l.split('\t')[0]: int(l.split('\t')[1]) for l in f}
-        with open('%s/token.txt' % FLAGS.load_vocab) as f:
+        with open('%s/vocab.txt' % FLAGS.load_vocab) as f:
             token_map = {l.split('\t')[0]: int(l.split('\t')[1]) for l in f}
         print('Loaded %d tokens, %d entities %d entity-pairs %d relations'
               % (len(token_map), len(entity_map), len(ep_map), len(rel_map)))

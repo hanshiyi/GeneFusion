@@ -21,6 +21,7 @@ def extractVocab(labelPos, labelNeg, outpath):
         cancerdic[line[2]] = cancerdic.get(line[2],0)+1
     cancertype = 0
     cancer_file = open(outpath+'rel.txt', 'w')
+    ep_dic = []
     for can in cancerdic:
         if cancerdic[can] > args.threshold_rel:
             cancer_file.write(can+'\n')
@@ -31,6 +32,12 @@ def extractVocab(labelPos, labelNeg, outpath):
         line = line.strip('\n').split('\t')
         if cancerdic[line[2]] < args.threshold_rel:
             continue
+        if line[1]>line[0]:
+            if line[0]+':'+line[1] not in ep_dic:
+                ep_dic.append(line[0]+':'+line[1])
+        else:
+            if line[1]+':'+line[0] not in ep_dic:
+                ep_dic.append(line[1]+':'+line[0])
         if line[3] not in pubmedids:
             pubmedids.append(line[3])
         if line[0] not in geneList:
@@ -40,6 +47,12 @@ def extractVocab(labelPos, labelNeg, outpath):
     print('cancertype:\t' + str(cancertype))
     for line in lpNeg:
         line = line.strip('\n').split('\t')
+        if line[1]>line[0]:
+            if line[0]+':'+line[1] not in ep_dic:
+                ep_dic.append(line[0]+':'+line[1])
+        else:
+            if line[1]+':'+line[0] not in ep_dic:
+                ep_dic.append(line[1]+':'+line[0])
         if line[3] not in pubmedids:
             pubmedids.append(line[3])
         if line[0] not in geneList:
@@ -92,7 +105,10 @@ def extractVocab(labelPos, labelNeg, outpath):
     ne_file.write('B-GENE\t3\n')
     ne_file.write('I-GENE\t4\n')
     ne_file.close()
-
+    ep_file = open(outpath + 'ep.txt', 'w')
+    ep_file.write('<UNK>\t0\n')
+    for i, ep in enumerate(ep_dic):
+        ep_file.write(ep+'\t'+str(i+1)+'\n')
 
 if __name__ == '__main__':
     labelPos = args.lpPos

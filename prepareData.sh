@@ -14,7 +14,7 @@ mkdir -r ${processedData}
 mkdir ${finalDir}
 fusionPair=${curDir}/data/CosmicFusionExport.tsv
 max_len=50000
-min_coun=1t
+min_count=5
 
 #python ${curDir}/src/utils.py $fusionPair $rawData
 
@@ -29,12 +29,16 @@ min_coun=1t
 #usage: genepkl reversepkl downloadpath cookedpath labelpairpos
 #python ${curDir}/src/preprocessNeg.py ${pkls}gene_dict.pkl ${pkls}reverse_gene_dict.pkl ${rawData} ${processedData} ${processedData}labelPairPos ${curDir}/data/CosmicCompleteTargetedScreensMutantExport.tsv
 
-python ${curDir}/src/getVocab.py ${processedData}labelPairPos ${processedData}labelPairNeg ${processedData}
+#python ${curDir}/src/getVocab.py ${processedData}labelPairPos ${processedData}labelPairNeg ${processedData}
 
 #python ${curDir}/src/w2v_pretrain.py ${pkls}gene_dict.pkl ${pkls}reverse_gene_dict.pkl ${rawData} ${processedData} ${processedData}vocab.txt ${curDir}/data/CosmicCompleteTargetedScreensMutantExport.tsv
 
 
-python ${curDir}/src/labelpair2csv.py ${processedData}labelPair\*Train\* ${processedData} ${finalDir}
-python ${curDir}/src/labelpair2csv.py ${processedData}labelPair\*Test\* ${processedData} ${finalDir}
+#python ${curDir}/src/labelpair2csv.py ${processedData}labelPair\*Train\* ${processedData} ${finalDir}
+#python ${curDir}/src/labelpair2csv.py ${processedData}labelPair\*Test\* ${processedData} ${finalDir}
 
 python ${curDir}/src/labled_tsv_to_tfrecords.py --text_in_files ${finalDir}/\*.csv --out_dir ${finalDir} --max_len ${max_len} --num_threads 10 --multiple_mentions --tsv_format --min_count ${min_count}
+python ${curDir}/src/ner_to_tfrecords.py --in_files ${finalDir}/ner_t\* --out_dir ${finalDir} --load_vocab ${processedData} --num_threads 5
+
+
+
