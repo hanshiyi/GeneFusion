@@ -40,18 +40,18 @@ def main():
     genelist = [line.strip('\n').split('\t')[0] for line in open(args.dir2pubmed+'gene_list.txt').readlines()]
     #print(genelist)
     if 'Train' in args.lp_files:
-        negfile = open(outpath + 'ner_train.txt', 'w')
+        nerfile = open(outpath + 'ner_train.txt', 'w')
     else:
-        negfile = open(outpath + 'ner_test.txt', 'w')
+        nerfile = open(outpath + 'ner_test.txt', 'w')
     for pubid in pubids:
-        content = open(args.dir2pubmed+pubmedid).readline().strip('\n').split()
+        content = open(args.dir2pubmed+pubid).readline().strip('\n').split()
         for widx, w in enumerate(content):
             if w in genelist:
-                negfile.write('%s\t%s\t%s\t%s\n' % (w,'B-GENE',str(genelist.index(w)),pubid))
+                nerfile.write('%s\t%s\t%s\t%s\n' % (w,'B-GENE',str(genelist.index(w)),pubid))
             else:
-                negfile.write('%s\t%s\t%s\t%s\n' % (w, 'O', '-1', pubid))
-        negfile.write('\n')
-    negfile.close()
+                nerfile.write('%s\t%s\t%s\t%s\n' % (w, 'O', '-1', pubid))
+        nerfile.write('\n')
+    nerfile.close()
 
 
 if __name__ == '__main__':

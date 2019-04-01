@@ -22,6 +22,7 @@ def extractVocab(labelPos, labelNeg, outpath):
     cancertype = 0
     cancer_file = open(outpath+'rel.txt', 'w')
     ep_dic = []
+    can_idx = 0
     for can in cancerdic:
         if cancerdic[can] > args.threshold_rel:
             cancer_file.write(can+'\n')

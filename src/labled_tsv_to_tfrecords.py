@@ -327,7 +327,7 @@ def tsv_to_examples():
         # remove tokens with < min_count
         print('Sorting and filtering vocab maps')
         keep_tokens = sorted([(t, c) for t, c in token_counter.iteritems()
-                              if c >= FLAGS.min_count], key=lambda tup: tup[1], reverse=True)
+                              if c >= FLAGS.min_count or t in entity_counter], key=lambda tup: tup[1], reverse=True)
         keep_tokens = [t[0] for t in keep_tokens]
         # int map all the kept vocab strings
         token_map = {t: i for i, t in enumerate(['<PAD>', '<UNK>'] + keep_tokens)}

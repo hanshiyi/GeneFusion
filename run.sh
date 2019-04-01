@@ -1,5 +1,17 @@
 #!/bin/bash
-export PYTHONPATH=. 
+#SBATCH -p gpu --gres=gpu:titanv:1 --mem=12GB
+
+# Request 1 CPU core
+#SBATCH -n 2
+
+#SBATCH -t 24:00:00
+#SBATCH -o genefusion_baseline_JOB%j.out
+module load python2.7.12
+module load tensorflow/1.4.1_gpu 
+module load cuda/8.0.61 cudnn/6.0
+
+
+export PYTHONPATH=.
 curDir=`pwd`
 protos=${curDir}/data/protos
 logDir=${curDir}/saved_models/`date +%Y-%m-%d-%H`/${RANDOM}_${RANDOM}
@@ -13,7 +25,7 @@ python src/train.py \
 --in_memory \
 --bidirectional \
 --train_dev_percent .85 \
---doc_filter /users/shan43/data/shan43/bran/data/cdr/CDR_pubmed_ids/CDR_Train_Dev_pubmed_ids.txt \
+--doc_filter ${protos}/pubmedid_train.txt \
 --noise_std 0.1 \
 --block_repeats 2 \
 --embeddings ${curDir}/data/processed/w2v.txt \
@@ -29,7 +41,7 @@ python src/train.py \
 --ner_batch 16 \
 --text_batch 32 \
 --kb_batch 16 \
---num_classes 2 \
+--num_classes 7 \
 --kb_vocab_size 2 \
 --text_encoder transformer_cnn_all_pairs \
 --position_dim 0 \
