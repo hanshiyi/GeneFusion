@@ -21,20 +21,27 @@ class Batcher(object):
         return sess.run(self.next_batch_op)
 
     def input_pipeline(self, file_pattern, batch_size, num_epochs=None, num_threads=10):
-        filenames = tf.matching_files(file_pattern)
-        filename_queue = tf.train.string_input_producer(filenames, num_epochs=num_epochs, shuffle=True)
-        parsed_batch = self.example_parser(filename_queue)
-        min_after_dequeue = 10000
-        capacity = min_after_dequeue + 12 * batch_size
-        next_batch = tf.train.batch(
-                parsed_batch, batch_size=batch_size, capacity=capacity,
-                num_threads=num_threads, dynamic_pad=True, allow_smaller_final_batch=True)
-        return next_batch
+        filenames = tf.data.Dataset.list_files(file_pattern)
+        dataset = tf.data.TFRecordDataset(filenames)
+        dataset = dataset.shuffle(buffer_size=10000+12*batch_size).map(map_func=self.example_parser)\
+            .padded_batch(batch_size, padded_shapes=([],[], [], [], [None],
+                                                     [None], [None], [], [])).repeat(num_epochs)
+        iter = dataset.make_one_shot_iterator()
+        # filenames = tf.matching_files(file_pattern)
+        # filename_queue = tf.train.string_input_producer(filenames, num_epochs=num_epochs, shuffle=True)
+        # parsed_batch = self.example_parser(filename_queue)
+        # min_after_dequeue = 10000
+        # capacity = min_after_dequeue + 12 * batch_size
+        # next_batch = tf.train.batch(
+        #         parsed_batch, batch_size=batch_size, capacity=capacity,
+        #         num_threads=num_threads, dynamic_pad=True, allow_smaller_final_batch=True)
+        # return next_batch
+        return iter.get_next()
 
     def example_parser(self, filename_queue):
-        reader = tf.TFRecordReader()
-        key, record_string = reader.read(filename_queue)
-
+        # reader = tf.TFRecordReader()
+        # key, record_string = reader.read(filename_queue)
+        record_string = filename_queue
         # Define how to parse the example
         context_features = {
             'doc_id': tf.FixedLenFeature([], tf.string),
@@ -168,9 +175,9 @@ class InMemoryBatcher(Batcher):
 
 
 def ner_example_parser(filename_queue):
-    reader = tf.TFRecordReader()
-    key, record_string = reader.read(filename_queue)
-
+    # reader = tf.TFRecordReader()
+    # key, record_string = reader.read(filename_queue)
+    record_string = filename_queue
     # Define how to parse the example
     context_features = {
         'seq_len': tf.FixedLenFeature([], tf.int64),
@@ -194,6 +201,14 @@ def ner_example_parser(filename_queue):
 class NERInMemoryBatcher(InMemoryBatcher):
     def example_parser(self, filename_queue):
         return ner_example_parser(filename_queue)
+
+    def input_pipeline(self, file_pattern, batch_size, num_epochs=None, num_threads=10):
+        filenames = tf.data.Dataset.list_files(file_pattern)
+        dataset = tf.data.TFRecordDataset(filenames)
+        dataset = dataset.shuffle(buffer_size=10000+12*batch_size).map(map_func=self.example_parser)\
+            .padded_batch(batch_size, padded_shapes=([None],[None], [None], [])).repeat(num_epochs)
+        iter = dataset.make_one_shot_iterator()
+        return iter.get_next()
 
     def load_all_data(self, sess, max_batches=-1):
         '''
@@ -246,3 +261,11 @@ class NERInMemoryBatcher(InMemoryBatcher):
 class NERBatcher(Batcher):
     def example_parser(self, filename_queue):
         return ner_example_parser(filename_queue)
+
+    def input_pipeline(self, file_pattern, batch_size, num_epochs=None, num_threads=10):
+        filenames = tf.data.Dataset.list_files(file_pattern)
+        dataset = tf.data.TFRecordDataset(filenames)
+        dataset = dataset.shuffle(buffer_size=10000+12*batch_size).map(map_func=self.example_parser)\
+            .padded_batch(batch_size, padded_shapes=([None],[None], [None], [])).repeat(num_epochs)
+        iter = dataset.make_one_shot_iterator()
+        return iter.get_next()

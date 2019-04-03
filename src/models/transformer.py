@@ -355,7 +355,7 @@ class Transformer(TextEncoder):
             e2 = tf.nn.dropout(e2, final_dropout_keep)
 
             pairwise_scores = self.bilinear(e1, e2, self.num_labels)
-            self.pairwise_scores = tf.nn.softmax(pairwise_scores, dim=2)
+            self.pairwise_scores = tf.nn.softmax(pairwise_scores, axis=2)
             result = tf.transpose(pairwise_scores, [0, 1, 3, 2])
             # mask result
             result += tf.expand_dims(self.ep_dist_batch, 3)

@@ -7,14 +7,15 @@
 #SBATCH -t 24:00:00
 #SBATCH -o genefusion_baseline_JOB%j.out
 module load python2.7.12
-module load tensorflow/1.4.1_gpu 
-module load cuda/8.0.61 cudnn/6.0
+module load tensorflow/1.13.1_gpu
+module load cuda/10.0.130 cudnn/7.4
 
 
 export PYTHONPATH=.
 curDir=`pwd`
 protos=${curDir}/data/protos
 logDir=${curDir}/saved_models/`date +%Y-%m-%d-%H`/${RANDOM}_${RANDOM}
+date
 python src/train.py \
 --vocab_dir=${protos} \
 --optimizer=adam \
@@ -55,3 +56,6 @@ python src/train.py \
 --negative_train=${protos}/NegTrain.csv.proto \
 --positive_train=${protos}/PosTrain.csv.proto \
 --logdir=${logDir}
+
+
+date

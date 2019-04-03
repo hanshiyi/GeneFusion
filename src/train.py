@@ -51,6 +51,7 @@ def train_model(model, pos_dist_supervision_batcher, neg_dist_supervision_batche
             if step > 0 and step % eval_every == 0:
                 sess.run(assign_shadow_ops)
                 if positive_test_batcher:
+                    print('Evaluating Dev')
                     avg_p, flat_scores, threshold_map = relation_eval(sess, model, FLAGS,
                                                                       positive_test_batcher, negative_test_batcher,
                                                                       string_int_maps, message='Dev')
@@ -67,7 +68,7 @@ def train_model(model, pos_dist_supervision_batcher, neg_dist_supervision_batche
                     if positive_test_batcher:
                         # if FLAGS.analyze_errors > 0: analyze_errors(flat_scores, string_int_maps)
                         if positive_test_test_batcher and negative_test_test_batcher:
-                            print('Evaluating Test Test')
+                            print('Evaluating Test')
                             avg_p, _, _ = relation_eval(sess, model, FLAGS,
                                                         positive_test_test_batcher, negative_test_test_batcher,
                                                         string_int_maps, message='Test', threshold_map=threshold_map)
@@ -133,8 +134,7 @@ def train_model(model, pos_dist_supervision_batcher, neg_dist_supervision_batche
 
 def main(argv):
     ## TODO gross
-    print ('\n'.join(sorted(["%s : %s" % (str(k), str(v)) for k, v in FLAGS.__dict__['__flags'].iteritems()])))
-
+    print ('\n'.join(sorted(["%s : %s" % (str(k), str(FLAGS[k].value)) for k in FLAGS])))
     if FLAGS.vocab_dir == '':
         print('Error: Must supply input data generated from tsv_to_tfrecords.py')
         sys.exit(1)
