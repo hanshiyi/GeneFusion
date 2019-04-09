@@ -37,7 +37,7 @@ min_count=5
 #python ${curDir}/src/labelpair2csv.py ${processedData}labelPair\*Train\* ${processedData} ${finalDir}
 #python ${curDir}/src/labelpair2csv.py ${processedData}labelPair\*Test\* ${processedData} ${finalDir}
 
-python ${curDir}/src/labled_tsv_to_tfrecords.py --text_in_files ${finalDir}/\*.csv --out_dir ${finalDir} --max_len ${max_len} --num_threads 10 --multiple_mentions --tsv_format --min_count ${min_count} 
+python ${curDir}/src/labeled_tsv_to_tfrecords.py --text_in_files ${finalDir}/\*.csv --out_dir ${finalDir} --max_len ${max_len} --num_threads 10 --multiple_mentions --tsv_format --min_count ${min_count} 
 python ${curDir}/src/ner_to_tfrecords.py --in_files ${finalDir}/ner_t\*.txt --out_dir ${finalDir} --load_vocab ${finalDir} --num_threads 5
 
 

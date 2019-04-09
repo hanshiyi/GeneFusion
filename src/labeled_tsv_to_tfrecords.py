@@ -290,13 +290,13 @@ def tsv_to_examples():
     total_lines = 0
     if FLAGS.load_vocab:
         print('Loading vocab from %s' % FLAGS.load_vocab)
-        with open('%s/entities.txt' % FLAGS.load_vocab) as f:
+        with open('%s/gene_list.txt' % FLAGS.load_vocab) as f:
             entity_map = {l.split('\t')[0]: int(l.split('\t')[1]) for l in f}
         with open('%s/ep.txt' % FLAGS.load_vocab) as f:
             ep_map = {l.split('\t')[0]: int(l.split('\t')[1]) for l in f}
         with open('%s/rel.txt' % FLAGS.load_vocab) as f:
             rel_map = {l.split('\t')[0]: int(l.split('\t')[1]) for l in f}
-        with open('%s/token.txt' % FLAGS.load_vocab) as f:
+        with open('%s/vocab.txt' % FLAGS.load_vocab) as f:
             token_map = {l.split('\t')[0]: int(l.split('\t')[1]) for l in f}
         print('Loaded %d tokens, %d entities %d entity-pairs %d relations'
               % (len(token_map), len(entity_map), len(ep_map), len(rel_map)))
@@ -327,7 +327,7 @@ def tsv_to_examples():
         # remove tokens with < min_count
         print('Sorting and filtering vocab maps')
         keep_tokens = sorted([(t, c) for t, c in token_counter.iteritems()
-                              if c >= FLAGS.min_count], key=lambda tup: tup[1], reverse=True)
+                              if c >= FLAGS.min_count or t in entity_counter], key=lambda tup: tup[1], reverse=True)
         keep_tokens = [t[0] for t in keep_tokens]
         # int map all the kept vocab strings
         token_map = {t: i for i, t in enumerate(['<PAD>', '<UNK>'] + keep_tokens)}
@@ -352,7 +352,7 @@ def tsv_to_examples():
 
 
 def main(argv):
-    print('\n'.join(sorted(["%s : %s" % (str(k), str(v)) for k, v in FLAGS.__dict__['__flags'].iteritems()])))
+    print('\n'.join(sorted(["%s : %s" % (str(k), str(FLAGS[k])) for k in FLAGS])))
     if FLAGS.out_dir == '':
         print('Must supply out_dir')
         sys.exit(1)
